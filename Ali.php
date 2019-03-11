@@ -8,6 +8,7 @@
 
 namespace xing\credit;
 
+use xing\credit\ali\zmop\ZmopClient;
 use xing\payment\sdk\aliPay\aop\AopClient;
 
 class Ali
@@ -49,8 +50,9 @@ class Ali
         $aopClient->rsaPrivateKey = $config['rsaPrivateKey'];  // 请填写开发者私钥去头去尾去回车，一行字符串
         $aopClient->alipayrsaPublicKey = $config['alipayrsaPublicKey']; // 请填写支付宝公钥，一行字符串
         $aopClient->signType = $config['signType'] ?? 'RSA2';  // 签名方式
-        $aopClient->format = $config['format'] ?? 'JSON';
+        $aopClient->format = $config['format'] ?? 'json';
         $aopClient->charset = $config['charset'] ?? 'utf-8';
+        $aopClient->apiVersion = '1.0';
 
         return $aopClient;
     }
@@ -67,11 +69,8 @@ class Ali
     public function startInit($bizCode, $cardNumber, $name = '', $transactionId = '')
     {
 
-        $set = PaymentSetMap::$set['aliPay'];
-        $linkedMerchantId = $set['linkedMerchantId'] ?? '';
+        $linkedMerchantId = $this->config['linkedMerchantId'] ?? '';
         $aop = $this->getAopClient();
-        $aop = new \xing\payment\sdk\aliPay\aop\AopClient ();
-        $aop->apiVersion = '1.0';
         $request = new \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationInitializeRequest ();
         $request->setBizContent("{" .
             "\"transaction_id\":\"{$transactionId}\"," .
@@ -92,6 +91,23 @@ class Ali
         } else {
             throw new \Exception('访问失败:code=' . $resultCode );
         }
+    }
+
+    /**
+     * 获取H5 认证url
+     * @param $bizNo
+     * @param $returnUrl
+     */
+    public function getH5Url($bizNo, $returnUrl)
+    {
+        $client = new ZmopClient($this->gatewayUrl,$this->appId,$this->charset,$this->privateKeyFile,$this->zmPublicKeyFile);
+        $request = new \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationCertifyRequest();
+        $request->setChannel("apppc");
+        $request->setPlatform("zmop");
+        $request->setBizNo($bizNo);// 必要参数
+        $request->setReturnUrl($returnUrl);// 必要参数
+        $url = $client->generatePageRedirectInvokeUrl($request);
+        echo $url;
     }
 
     public function getResult()

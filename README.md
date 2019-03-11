@@ -13,6 +13,4 @@ $aliConfig = [
 $orderId = time() . '身份证号';
 $result = Ali::init($aliConfig)
 ->startInit('场景', $orderId, '身份证号', '真实姓名');
-
-
 ```

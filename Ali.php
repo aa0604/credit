@@ -93,7 +93,11 @@ class Ali
 
         $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
         $resultCode = $result->$responseNode->code;
-        return !empty($resultCode) && $resultCode == 10000;
+        if (!empty($resultCode) && $resultCode == 10000){
+            return $result;
+        } else {
+            throw new \Exception('访问失败:code=' . $resultCode );
+        }
     }
 
     public function getResult()

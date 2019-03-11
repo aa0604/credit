@@ -25,7 +25,7 @@ class Ali
     /**
      * 初始化
      * @param $config
-     * @return AliPay
+     * @return Ali
      */
     public static function init($config)
     {
@@ -55,6 +55,14 @@ class Ali
         return $aopClient;
     }
 
+    /**
+     * 初始化
+     * @param $cardNumber
+     * @param string $name
+     * @param string $transactionId
+     * @return bool
+     * @throws \Exception
+     */
     public function startInit($cardNumber, $name = '', $transactionId = '')
     {
 
@@ -81,15 +89,15 @@ class Ali
             "\"linked_merchant_id\":\"{$linkedMerchantId}\"," .
             "\"face_contrast_picture\":\"xydasf==\"" .
             "  }");
-        $result = $aop->execute ( $request);
+        $this->request = $result = $aop->execute ( $request);
 
         $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
         $resultCode = $result->$responseNode->code;
-        er($result);
-        if(!empty($resultCode)&&$resultCode == 10000){
-            echo "成功";
-        } else {
-            echo "失败";
-        }
+        return !empty($resultCode) && $resultCode == 10000;
+    }
+
+    public function getResult()
+    {
+        return $this->request;
     }
 }

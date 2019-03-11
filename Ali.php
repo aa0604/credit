@@ -57,32 +57,26 @@ class Ali
 
     /**
      * 初始化
+     * @param $bizCode
      * @param $cardNumber
      * @param string $name
      * @param string $transactionId
-     * @return bool
+     * @return bool|mixed|\SimpleXMLElement
      * @throws \Exception
      */
-    public function startInit($cardNumber, $name = '', $transactionId = '')
+    public function startInit($bizCode, $cardNumber, $name = '', $transactionId = '')
     {
 
         $set = PaymentSetMap::$set['aliPay'];
         $linkedMerchantId = $set['linkedMerchantId'] ?? '';
         $aop = $this->getAopClient();
         $aop = new \xing\payment\sdk\aliPay\aop\AopClient ();
-//        $aop->gatewayUrl = 'https://openapi.alipay.com/gateway.do';
-//        $aop->appId = $set['appId'];
-//        $aop->rsaPrivateKey = $set['rsaPrivateKey'];
-//        $aop->alipayrsaPublicKey=$set['alipayrsaPublicKey'];
         $aop->apiVersion = '1.0';
-//        $aop->signType = 'RSA2';
-//        $aop->postCharset='UTF-8';
-//        $aop->format='json';
         $request = new \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationInitializeRequest ();
         $request->setBizContent("{" .
             "\"transaction_id\":\"{$transactionId}\"," .
             "\"product_code\":\"w1010100000000002978\"," .
-            "\"biz_code\":\"FACE\"," .
+            "\"biz_code\":\"{$bizCode}\"," .
             "\"identity_param\":\"{\\\"identity_type\\\":\\\"CERT_INFO\\\",\\\"cert_type\\\":\\\"IDENTITY_CARD\\\",\\\"cert_name\\\":\\\"{$cardNumber}\\\",\\\"cert_no\\\":\\\"{$cardNumber}\\\"}\"," .
             "\"merchant_config\":\"{}\"," .
             "\"ext_biz_param\":\"{}\"," .

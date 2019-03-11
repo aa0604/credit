@@ -107,6 +107,7 @@ class Ali
             "\"biz_no\":\"{$bizNo}\"" .
             "  }");
         $this->request = $result = $aop->pageExecute ( $request);
+        if (is_string($result)) exit($result);
 
         $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
         $resultCode = $result->$responseNode->code;
@@ -125,7 +126,7 @@ class Ali
         $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
         $result = isset($result->$responseNode) ? $result->$responseNode : null;
         if (empty($result)) throw new \Exception('访问失败');
-        if ($result->code != 10000 || !$result->passed) throw new \Exception($result->failed_reason, $result->code);
+        if ($result->code != 10000 || !$result->passed) throw new \Exception($result->failed_reason ?? $result->sub_msg, $result->code);
         return true;
     }
 

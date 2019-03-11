@@ -36,8 +36,8 @@ $orderId = time() . '身份证号';
 
 $auth = getInstance();
 $bizNo = $auth->getBizNo('场景',  '身份证号', '真实姓名', $orderId);
-
-$url = $auth->goH5Url($bizNo, 'http://xxx.com/h5/auth/return');
+// 访问接口成功则会输出 exit(HTML页面)
+$auth->goH5Url($bizNo, 'http://xxx.com/h5/auth/return');
 echo $url;
 ```
 

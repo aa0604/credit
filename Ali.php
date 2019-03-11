@@ -8,11 +8,12 @@
 
 namespace xing\credit;
 
-use xing\credit\ali\zmop\ZmopClient;
 use xing\payment\sdk\aliPay\aop\AopClient;
 
 class Ali
 {
+
+    public $gatewayUrl = "https://zmopenapi.zmxy.com.cn/openapi.do";
 
     private $config;
 
@@ -66,7 +67,7 @@ class Ali
      * @return bool|mixed|\SimpleXMLElement
      * @throws \Exception
      */
-    public function startInit($bizCode, $cardNumber, $name = '', $transactionId = '')
+    public function getBizNo($bizCode, $cardNumber, $name = '', $transactionId = '')
     {
 
         $linkedMerchantId = $this->config['linkedMerchantId'] ?? '';
@@ -87,7 +88,7 @@ class Ali
         $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
         $resultCode = $result->$responseNode->code;
         if (!empty($resultCode) && $resultCode == 10000){
-            return $result;
+            return $result->$responseNode->biz_no;
         } else {
             throw new \Exception('访问失败:code=' . $resultCode );
         }
@@ -98,16 +99,34 @@ class Ali
      * @param $bizNo
      * @param $returnUrl
      */
-    public function getH5Url($bizNo, $returnUrl)
+    public function goH5Url($bizNo, $returnUrl)
     {
-        $client = new ZmopClient($this->gatewayUrl,$this->appId,$this->charset,$this->privateKeyFile,$this->zmPublicKeyFile);
-        $request = new \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationCertifyRequest();
-        $request->setChannel("apppc");
-        $request->setPlatform("zmop");
-        $request->setBizNo($bizNo);// 必要参数
-        $request->setReturnUrl($returnUrl);// 必要参数
-        $url = $client->generatePageRedirectInvokeUrl($request);
-        echo $url;
+        $aop = $this->getAopClient();
+        $request = new \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationCertifyRequest ();
+        $request->setBizContent("{" .
+            "\"biz_no\":\"{$bizNo}\"" .
+            "  }");
+        $this->request = $result = $aop->pageExecute ( $request);
+
+        $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
+        $resultCode = $result->$responseNode->code;
+        return $result;
+    }
+
+    public function isFinish($bizNo)
+    {
+        $aop = $this->getAopClient();
+        $request = new \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationQueryRequest ();
+        $request->setBizContent("{" .
+            "\"biz_no\":\"{$bizNo}\"" .
+            "  }");
+        $this->request = $result = $aop->execute ( $request);
+
+        $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
+        $result = isset($result->$responseNode) ? $result->$responseNode : null;
+        if (empty($result)) throw new \Exception('访问失败');
+        if ($result->code != 10000 || !$result->passed) throw new \Exception($result->failed_reason, $result->code);
+        return true;
     }
 
     public function getResult()

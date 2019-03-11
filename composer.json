@@ -1,0 +1,19 @@
+{
+  "name": "xing.chen/credit",
+  "description": "芝麻信用，2019，可用，简单",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "chen xing"
+    }
+  ],
+  "require": {
+    "php": ">=7.0.0",
+    "xing.chen/payment": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "xing\\payment\\": ""
+    }
+  }
+}

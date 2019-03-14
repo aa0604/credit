@@ -77,7 +77,7 @@ class Ali
             "\"transaction_id\":\"{$transactionId}\"," .
             "\"product_code\":\"w1010100000000002978\"," .
             "\"biz_code\":\"{$bizCode}\"," .
-            "\"identity_param\":\"{\\\"identity_type\\\":\\\"CERT_INFO\\\",\\\"cert_type\\\":\\\"IDENTITY_CARD\\\",\\\"cert_name\\\":\\\"{$cardNumber}\\\",\\\"cert_no\\\":\\\"{$cardNumber}\\\"}\"," .
+            "\"identity_param\":\"{\\\"identity_type\\\":\\\"CERT_INFO\\\",\\\"cert_type\\\":\\\"IDENTITY_CARD\\\",\\\"cert_name\\\":\\\"{$name}\\\",\\\"cert_no\\\":\\\"{$cardNumber}\\\"}\"," .
             "\"merchant_config\":\"{}\"," .
             "\"ext_biz_param\":\"{}\"," .
             "\"linked_merchant_id\":\"{$linkedMerchantId}\"," .
@@ -103,15 +103,14 @@ class Ali
     {
         $aop = $this->getAopClient();
         $request = new \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationCertifyRequest ();
+        $request->setReturnUrl($returnUrl);
         $request->setBizContent("{" .
             "\"biz_no\":\"{$bizNo}\"" .
             "  }");
-        $this->request = $result = $aop->pageExecute ( $request);
-        if (is_string($result)) exit($result);
+        $result = $aop->pageExecute ( $request, 'GET');
+        if (is_string($result)) return $result;
 
-        $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
-        $resultCode = $result->$responseNode->code;
-        return $result;
+        return $this->checkResult($request);
     }
 
     public function isFinish($bizNo)
@@ -122,7 +121,17 @@ class Ali
             "\"biz_no\":\"{$bizNo}\"" .
             "  }");
         $this->request = $result = $aop->execute ( $request);
+        return $this->checkResult($request);
+    }
 
+    /**
+     * 检查结果，如果失败则抛出错误
+     * @param \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationQueryRequest|\xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationCertifyRequest $request
+     * @return bool
+     * @throws \Exception
+     */
+    private function checkResult($request)
+    {
         $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
         $result = isset($result->$responseNode) ? $result->$responseNode : null;
         if (empty($result)) throw new \Exception('访问失败');

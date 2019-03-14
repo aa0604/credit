@@ -16,9 +16,8 @@
 ## 跳转到h5认证页面url
 说明：
 
-1、程序会自动初始化认证
+程序会自动初始化认证
 
-2、自动跳转到认证页面，以下代码需要HTML支持，在不支持HTML，document的app里将无法运行
 ```php
 <?php
 function getInstance()
@@ -36,8 +35,7 @@ $orderId = time() . '身份证号';
 
 $auth = getInstance();
 $bizNo = $auth->getBizNo('场景',  '身份证号', '真实姓名', $orderId);
-// 访问接口成功则会输出 exit(HTML页面)
-$auth->goH5Url($bizNo, 'http://xxx.com/h5/auth/return');
+$url = $auth->goH5Url($bizNo, 'http://xxx.com/h5/auth/return');
 echo $url;
 ```
 

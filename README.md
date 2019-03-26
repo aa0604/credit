@@ -47,7 +47,7 @@ try {
     
 $auth = getInstance();
 // 成功返回真
-$result = $auth->isFinish('bizNo');
+$result = $auth->isPassed('bizNo');
 print_r($auth->getResult()); // 输出结果
 } catch (\Exception $e) {
     exit('认证失败：' .$e->getMessage() . ' 错误代码:' . $e->getCode());

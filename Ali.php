@@ -78,10 +78,10 @@ class Ali
             "\"product_code\":\"w1010100000000002978\"," .
             "\"biz_code\":\"{$bizCode}\"," .
             "\"identity_param\":\"{\\\"identity_type\\\":\\\"CERT_INFO\\\",\\\"cert_type\\\":\\\"IDENTITY_CARD\\\",\\\"cert_name\\\":\\\"{$name}\\\",\\\"cert_no\\\":\\\"{$cardNumber}\\\"}\"," .
-            "\"merchant_config\":\"{}\"," .
-            "\"ext_biz_param\":\"{}\"," .
-            "\"linked_merchant_id\":\"{$linkedMerchantId}\"," .
-            "\"face_contrast_picture\":\"xydasf==\"" .
+//            "\"merchant_config\":\"{}\"," .
+//            "\"ext_biz_param\":\"{}\"," .
+//            "\"linked_merchant_id\":\"{$linkedMerchantId}\"," .
+//            "\"face_contrast_picture\":\"xydasf==\"" .
             "  }");
         $this->request = $result = $aop->execute ( $request);
 
@@ -106,14 +106,14 @@ class Ali
         $request->setReturnUrl($returnUrl);
         $request->setBizContent("{" .
             "\"biz_no\":\"{$bizNo}\"" .
-            "  }");
+            "}");
         $result = $aop->pageExecute ( $request, 'GET');
         if (is_string($result)) return $result;
 
         return $this->checkResult($request);
     }
 
-    public function isFinish($bizNo)
+    public function isPassed($bizNo)
     {
         $aop = $this->getAopClient();
         $request = new \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationQueryRequest ();

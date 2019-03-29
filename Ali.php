@@ -126,12 +126,13 @@ class Ali
 
     /**
      * 检查结果，如果失败则抛出错误
-     * @param \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationQueryRequest|\xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationCertifyRequest $request
+     * @param $request
      * @return bool
      * @throws \Exception
      */
     private function checkResult($request)
     {
+        $result = $this->getResult();
         $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
         $result = isset($result->$responseNode) ? $result->$responseNode : null;
         if (empty($result)) throw new \Exception('访问失败');
@@ -139,6 +140,9 @@ class Ali
         return true;
     }
 
+    /**
+     * @return \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationQueryRequest|\xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationCertifyRequest
+     */
     public function getResult()
     {
         return $this->request;

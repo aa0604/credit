@@ -13,8 +13,6 @@ use xing\payment\sdk\aliPay\aop\AopClient;
 class Ali
 {
 
-    public $gatewayUrl = "https://zmopenapi.zmxy.com.cn/openapi.do";
-
     private $config;
 
     private $params;
@@ -64,31 +62,37 @@ class Ali
      * @param $cardNumber
      * @param string $name
      * @param string $transactionId
+     * @param $returnUrl
      * @return bool|mixed|\SimpleXMLElement
      * @throws \Exception
      */
-    public function getBizNo($bizCode, $cardNumber, $name = '', $transactionId = '')
+    public function getBizNo($bizCode, $cardNumber, $name = '', $transactionId = '', $returnUrl = '')
     {
 
-        $linkedMerchantId = $this->config['linkedMerchantId'] ?? '';
         $aop = $this->getAopClient();
-        $request = new \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationInitializeRequest ();
-        $request->setBizContent("{" .
-            "\"transaction_id\":\"{$transactionId}\"," .
-            "\"product_code\":\"w1010100000000002978\"," .
-            "\"biz_code\":\"{$bizCode}\"," .
-            "\"identity_param\":\"{\\\"identity_type\\\":\\\"CERT_INFO\\\",\\\"cert_type\\\":\\\"IDENTITY_CARD\\\",\\\"cert_name\\\":\\\"{$name}\\\",\\\"cert_no\\\":\\\"{$cardNumber}\\\"}\"," .
-//            "\"merchant_config\":\"{}\"," .
-//            "\"ext_biz_param\":\"{}\"," .
-//            "\"linked_merchant_id\":\"{$linkedMerchantId}\"," .
-//            "\"face_contrast_picture\":\"xydasf==\"" .
-            "  }");
+        $request = new \xing\payment\sdk\aliPay\aop\request\AlipayUserCertifyOpenInitializeRequest ();
+
+        $data = [
+            'outer_order_no' => $transactionId,
+            'biz_code' => $bizCode,
+            'identity_param' => [
+                'identity_type' => 'CERT_INFO',
+                'cert_type' => 'IDENTITY_CARD',
+                'cert_name' => $name,
+                'cert_no' => $cardNumber
+            ],
+            'merchant_config' => [
+                'return_url' => $returnUrl
+            ]
+        ];
+        $request->setBizContent(json_encode($data, JSON_UNESCAPED_UNICODE));
+
         $this->request = $result = $aop->execute ( $request);
 
         $responseNode = str_replace(".", "_", $request->getApiMethodName()) . "_response";
         $resultCode = $result->$responseNode->code;
         if (!empty($resultCode) && $resultCode == 10000){
-            return $result->$responseNode->biz_no;
+            return $result->$responseNode->certify_id;
         } else {
             throw new \Exception('访问失败:code=' . $resultCode );
         }
@@ -102,11 +106,13 @@ class Ali
     public function goH5Url($bizNo, $returnUrl)
     {
         $aop = $this->getAopClient();
-        $request = new \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationCertifyRequest ();
+        $request = new \xing\payment\sdk\aliPay\aop\request\AlipayUserCertifyOpenCertifyRequest ();
         $request->setReturnUrl($returnUrl);
         $request->setBizContent("{" .
             "\"biz_no\":\"{$bizNo}\"" .
             "}");
+        $data = ['biz_no' => $bizNo];
+        $request->setBizContent(json_encode($data, JSON_UNESCAPED_UNICODE));
         $result = $aop->pageExecute ( $request, 'GET');
         if (is_string($result)) return $result;
 
@@ -116,7 +122,7 @@ class Ali
     public function isPassed($bizNo)
     {
         $aop = $this->getAopClient();
-        $request = new \xing\payment\sdk\aliPay\aop\request\ZhimaCustomerCertificationQueryRequest ();
+        $request = new \xing\payment\sdk\aliPay\aop\request\AlipayUserCertifyOpenQueryRequest ();
         $request->setBizContent("{" .
             "\"biz_no\":\"{$bizNo}\"" .
             "  }");

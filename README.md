@@ -1,5 +1,7 @@
 # credit
-芝麻信用，2019，可用，简单
+由于芝麻信用于2019年停止服务，支付宝官方建议使用支付宝的认证产品来代替芝麻信用认证。所以本插件已将停止，并将全部源码替换为支付宝认证服务。
+
+方法和原来的一样，也就是说你只需要更新，不需要改你原来代码。
 
 注：本插件依赖本人的另一个插件（支付插件），因为这个支付插件的支付宝官方sdk被我大量修改为能够使用的了。。。你也可以用我这个支付插件，支持微信，支付宝，paypal，首信易等支付
 # 认证流程
@@ -33,6 +35,7 @@ function getInstance()
 
 $orderId = time() . '身份证号';
 
+$returnUrl = 'http://xxx.com/h5/auth/return';
 $auth = getInstance();
 $bizNo = $auth->getBizNo('场景',  '身份证号', '真实姓名', $orderId);
 $url = $auth->goH5Url($bizNo, 'http://xxx.com/h5/auth/return');

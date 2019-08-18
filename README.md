@@ -37,8 +37,8 @@ $orderId = time() . '身份证号';
 
 $returnUrl = 'http://xxx.com/h5/auth/return';
 $auth = getInstance();
-$bizNo = $auth->getBizNo('场景',  '身份证号', '真实姓名', $orderId);
-$url = $auth->goH5Url($bizNo, 'http://xxx.com/h5/auth/return');
+$bizNo = $auth->getBizNo('场景',  '身份证号', '真实姓名', $orderId, $returnUrl);
+$url = $auth->goH5Url($bizNo, $returnUrl);
 echo $url;
 ```
 
